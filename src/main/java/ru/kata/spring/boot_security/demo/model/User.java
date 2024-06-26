@@ -3,59 +3,91 @@ package ru.kata.spring.boot_security.demo.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-
 import java.util.Collection;
 import java.util.List;
 
-@Entity
-@Table(name = "users")
-public class User implements UserDetails {
 
+@Entity
+@Table(name = "user")
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(unique = true)
-    @Size(min = 3, max = 20, message = "От 2 до 20 символов")
-    @NotEmpty(message = "Поле не должно быть пустым")
-    private String username;
+    @NotEmpty(message = "Имя не должно быть пустым")
+    @Size(min = 3, max = 30, message = "Имя должно быть от 3 до 30 символов")
+    private String name;
 
     @Column
-    @NotEmpty(message = "Пароль не должен быть пустым")
+    @NotEmpty(message = "Пароль не должен быть пустой")
     private String password;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
+    @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
-    public User(String password, List<Role> roles, String username) {
+    public User(String name, String password, List<Role> roles) {
+        this.name = name;
         this.password = password;
         this.roles = roles;
-        this.username = username;
     }
 
-    public User(){
+    public User(String name, String password) {
+        this.name = name;
+        this.password = password;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void addRole(String role) {
+        roles.add(new Role(role));
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles();
+        return roles;
     }
 
-    @Override
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return this.name;
     }
 
     @Override
@@ -78,18 +110,6 @@ public class User implements UserDetails {
         return true;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setPassword(@NotEmpty(message = "Пароль не должен быть пустым") String password) {
-        this.password = password;
-    }
-
     public List<Role> getRoles() {
         return roles;
     }
@@ -98,7 +118,6 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    public void setUsername(@Size(min = 3, max = 20, message = "От 2 до 20 символов") @NotEmpty(message = "Поле не должно быть пустым") String username) {
-        this.username = username;
+    public User() {
     }
 }
