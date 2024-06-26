@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.Repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.model.Role;
 
+
 import java.util.List;
+
 @Service
 public class RoleServiceImpl implements RoleService {
 
@@ -23,6 +25,11 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role getRole(long id) {
-        return roleRepository.findById(id).get();
+        return roleRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    public void saveRole(Role role) {
+        roleRepository.save(role);
     }
 }
