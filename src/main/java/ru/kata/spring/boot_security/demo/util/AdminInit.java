@@ -6,9 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.Service.UserServiceImpl;
 import ru.kata.spring.boot_security.demo.model.User;
 
-
 import javax.annotation.PostConstruct;
-
 
 @Component
 public class AdminInit {

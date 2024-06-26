@@ -68,7 +68,7 @@ public class AdminController {
 
     @GetMapping("/edit")
     public String edit(@RequestParam("id") int id, ModelMap modelMap) {
-        modelMap.addAttribute("name", userService.userID(id));
+        modelMap.addAttribute("user", userService.userID(id));
         modelMap.addAttribute("role", roleService.getRoles());
         return "usersEdit";
     }

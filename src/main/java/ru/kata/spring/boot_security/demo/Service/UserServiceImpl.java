@@ -17,7 +17,6 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -28,12 +27,12 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-
     @Override
     public List<User> listUsers() {
         return userRepository.findAll();
     }
 
+    @Transactional
     @Override
     public void addUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -42,8 +41,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User userID(long id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.orElseThrow();
+        Optional<User> optional = userRepository.findById(id);
+        return optional.orElseThrow();
     }
 
     @Transactional
@@ -55,18 +54,19 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void update(User user, long id) {
-        User userDB = userRepository.findById(id).get();
-        userDB.setName(user.getName());
-        userDB.setPassword(passwordEncoder.encode(user.getPassword()));
-        userDB.setRoles(user.getRoles());
+        User updatedUser = userRepository.findById(id).get();
+        updatedUser.setName(user.getName());
+        updatedUser.setRoles(user.getRoles());
+        updatedUser.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userUpdated = userRepository.findByName(username);
-        if (userUpdated.isEmpty()) {
-            throw new UsernameNotFoundException(username);
+        Optional<User> updatedUser = userRepository.findByName(username);
+        if (updatedUser.isEmpty()) {
+            throw new UsernameNotFoundException("Нет такого");
         }
-        return userUpdated.get();
+        return updatedUser.get();
     }
+
 }
