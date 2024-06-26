@@ -13,8 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,14 +26,21 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(unique = true)
+    @Column()
     @NotEmpty(message = "Имя не должно быть пустым")
-    @Size(min = 3, max = 30, message = "Имя должно быть от 3 до 30 символов")
     private String name;
 
     @Column
     @NotEmpty(message = "Пароль не должен быть пустой")
     private String password;
+    @Column
+    @Min(value = 0, message = "Возраст не может быть отрицательным")
+    private int age;
+    @Column
+    @NotEmpty(message = "Фамилия не должна быть пустой")
+    private String lastName;
+    @Column
+    private String email;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "users_roles",
@@ -41,27 +48,45 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles;
 
-    public User(String name, String password, List<Role> roles) {
+    public User(String name, String password, int age, String lastName, String email, List<Role> roles) {
         this.name = name;
         this.password = password;
+        this.age = age;
+        this.lastName = lastName;
+        this.email = email;
         this.roles = roles;
-    }
-
-    public User(String name, String password) {
-        this.name = name;
-        this.password = password;
     }
 
     public long getId() {
         return id;
     }
 
-    public void addRole(String role) {
-        roles.add(new Role(role));
-    }
-
     public void setId(long id) {
         this.id = id;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getName() {
@@ -87,7 +112,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.name;
+        return this.email;
     }
 
     @Override
@@ -112,6 +137,14 @@ public class User implements UserDetails {
 
     public List<Role> getRoles() {
         return roles;
+    }
+
+    public String getRolesString() {
+        return String.join(",", roles.toString())
+                .replace("ROLE_", "")
+                .replaceAll("\\]", "")
+                .replaceAll("\\[", "")
+                .toString();
     }
 
     public void setRoles(List<Role> roles) {
